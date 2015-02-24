@@ -4,6 +4,7 @@
 
     <uses-permission android:name="android.permission.BLUETOOTH"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
 
     <application
@@ -23,6 +24,13 @@
         <activity
             android:name=".SetupBTActivity"
             android:label="@string/setup_bt"
+            android:parentActivityName=".MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.raysmets.beatstream.MainActivity" />
+        </activity>
+        <activity
+            android:name=".MusicPlayer"
             android:parentActivityName=".MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

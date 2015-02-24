@@ -25,6 +25,11 @@ public class MainActivity extends ActionBarActivity {
         startActivity(intent);
     }
 
+    public void goToMediaPlayer(View view){
+        Intent intent = new Intent(this, MusicPlayer.class);
+        startActivity(intent);
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
