@@ -20,6 +20,11 @@ public class MainActivity extends ActionBarActivity {
 
     }
 
+    public void setupWifi(View view){
+        Intent intent = new Intent(this, SetupWifiActivity.class);
+        startActivity(intent);
+    }
+
     public void setupBT(View view){
         Intent intent = new Intent(this, SetupBTActivity.class);
         startActivity(intent);

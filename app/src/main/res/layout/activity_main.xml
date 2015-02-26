@@ -24,4 +24,13 @@
         android:layout_below="@+id/setupBTbutton"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Setup Wifi Direct"
+        android:id="@+id/setupWifi"
+        android:layout_below="@+id/mediaButton"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 </RelativeLayout>
