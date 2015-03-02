@@ -20,6 +20,19 @@ public class MainActivity extends ActionBarActivity {
 
     }
 
+    //Button calls
+    public void HostStream(View view){
+        Intent intent = new Intent(this, SetupWifiActivity.class);
+        startActivity(intent);
+    }
+
+    public void JoinStream(View view){
+        Intent intent = new Intent(this, SetupWifiActivity.class);
+        startActivity(intent);
+    }
+
+
+    //for testing
     public void setupWifi(View view){
         Intent intent = new Intent(this, SetupWifiActivity.class);
         startActivity(intent);
