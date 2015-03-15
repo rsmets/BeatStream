@@ -91,6 +91,8 @@ public class MainActivity extends ActionBarActivity {
 
     public void BluetoothOn(){
         if (!myBluetoothAdapter.isEnabled()) {
+            Toast.makeText(getApplicationContext(), "Bluetooth is required for this app",
+                    Toast.LENGTH_LONG).show();
             Intent turnOnIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(turnOnIntent, REQUEST_ENABLE_BT);
         }
@@ -105,8 +107,8 @@ public class MainActivity extends ActionBarActivity {
                         Toast.LENGTH_LONG).show();
 
             } else {
-                Toast.makeText(getApplicationContext(), "Bluetooth turned off",
-                        Toast.LENGTH_LONG).show();
+                //try again
+                BluetoothOn();
             }
         }
     }
