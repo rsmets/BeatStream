@@ -22,14 +22,9 @@
         android:text="Host Stream"
         android:onClick="HostStream"
         android:id="@+id/hoststreamButton"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@+id/joinstreamButton"
-        android:layout_margin="100sp"
-        android:layout_alignParentEnd="false"
-        android:layout_alignParentStart="false"
-        android:layout_alignParentRight="false"
-        android:layout_alignParentLeft="false"
-        android:layout_alignParentTop="false" />
+        android:layout_centerVertical="true"
+        android:layout_alignLeft="@+id/joinstreamButton"
+        android:layout_alignStart="@+id/joinstreamButton" />
 
     <Button
         android:layout_width="wrap_content"

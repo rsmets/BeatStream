@@ -2,8 +2,10 @@ package com.example.raysmets.beatstream;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.nfc.Tag;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.bluetooth.BluetoothAdapter;
@@ -25,6 +27,8 @@ import android.widget.Toast;
  * Created by raysmets on 2/23/15.
  */
 public class SetupBTActivity extends ActionBarActivity{
+
+    private static final String TAG = "SetupBTActivity";
 
     private static final int REQUEST_ENABLE_BT = 1;
     private Button onBtn;
@@ -100,7 +104,9 @@ public class SetupBTActivity extends ActionBarActivity{
             if (myBluetoothAdapter.isEnabled()) {
                 if (isHost) {
                     Intent intent = new Intent(this, HostPlaylist.class);
+                    Log.d(TAG,"starting playlist intent");
                     startActivity(intent);
+
                 }
                 else
                 {
@@ -114,6 +120,8 @@ public class SetupBTActivity extends ActionBarActivity{
             }
         }
     }
+
+
 
     public void find(View view) {
         if (myBluetoothAdapter.isDiscovering()) {
