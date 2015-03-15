@@ -3,6 +3,8 @@ package com.example.raysmets.beatstream;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,6 +18,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 
 
 /**
@@ -27,6 +30,7 @@ public class HostPlaylist extends ActionBarActivity {
     private BluetoothAdapter myBluetoothAdapter;
     private ArrayAdapter<String> SongArrayAdapter;
     private ListView songList;
+    private ArrayList<String> songFiles = new ArrayList<String>();
 
 
 
@@ -52,7 +56,7 @@ public class HostPlaylist extends ActionBarActivity {
 
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        playSong(String.valueOf(parent.getItemAtPosition(position)));
+                        playSong(songFiles.get(position));
 
                     }
                 }
@@ -82,12 +86,14 @@ public class HostPlaylist extends ActionBarActivity {
         //metadata retriever
         MediaMetadataRetriever metaData = new MediaMetadataRetriever();
 
-
         Field[] songs = com.example.raysmets.beatstream.R.raw.class.getFields();
         int count = 0;
         for (Field f:songs) {
             count = count +1;
             try {
+                songFiles.add(f.getName());
+
+
                 int resID = getResources().getIdentifier(f.getName(),
                         "raw", getPackageName());
 
@@ -95,8 +101,21 @@ public class HostPlaylist extends ActionBarActivity {
 
                 metaData.setDataSource(afd.getFileDescriptor(),afd.getStartOffset(),afd.getLength());
 
+                int songDurationS = Integer.valueOf(metaData.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)) / 1000;
+                int songDurationM = songDurationS/60;
+                songDurationS = songDurationS%60;
+
+                String songDuration = String.valueOf(songDurationM) + ":";
+                if (songDurationS<10) {
+                    songDuration = songDuration + "0" + String.valueOf(songDurationS);
+                }
+                else {
+                    songDuration = songDuration + String.valueOf(songDurationS);
+                }
+
 
                 SongArrayAdapter.add(metaData.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE)
+                        + "   [" + songDuration + "]"
                         + "\n" + metaData.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST));
                 SongArrayAdapter.notifyDataSetChanged();
             }
@@ -117,5 +136,46 @@ public class HostPlaylist extends ActionBarActivity {
         Toast.makeText(getApplicationContext(), songName,
                 Toast.LENGTH_LONG).show();
         //test
+
+        //Song Metadata for player
+        int resID = getResources().getIdentifier(songName,
+                "raw", getPackageName());
+
+        final AssetFileDescriptor afd=getResources().openRawResourceFd(resID);
+
+        MediaMetadataRetriever metaData = new MediaMetadataRetriever();
+        metaData.setDataSource(afd.getFileDescriptor(),afd.getStartOffset(),afd.getLength());
+
+
+        String songTitle = metaData.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+        String songArtist = metaData.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+        int songDurationMS = Integer.valueOf(metaData.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+        int songDurationS = songDurationMS / 1000;
+        int songDurationM = songDurationS/60;
+        songDurationS = songDurationS%60;
+
+        String songDuration = String.valueOf(songDurationM) + ":";
+        if (songDurationS<10) {
+            songDuration = songDuration + "0" + String.valueOf(songDurationS);
+        }
+        else {
+            songDuration = songDuration + String.valueOf(songDurationS);
+        }
+
+        //album artwork
+        byte[] albumbytes = metaData.getEmbeddedPicture();
+
+
+        //Music Player Intent
+        Intent intent = new Intent(this, MusicPlayer.class);
+        intent.putExtra("fileName", songName);
+        intent.putExtra("songTitle", songTitle);
+        intent.putExtra("songArtist", songArtist);
+        intent.putExtra("songDurationMS", songDurationMS);
+        intent.putExtra("songDuration", songDuration);
+        intent.putExtra("albumCover", albumbytes);
+        startActivity(intent);
+
+
     }
 }
