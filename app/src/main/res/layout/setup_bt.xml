@@ -5,34 +5,12 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity" >
 
-    <TextView
-        android:id="@+id/text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="@string/Text" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="30dp" >
-
-        <Button
-            android:id="@+id/turnOn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/onBluetooth"
-            android:singleLine="true" />
-
-    </LinearLayout>
-
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginTop="80dp" >
+        android:layout_alignParentTop="true">
 
         <Button
             android:id="@+id/paired"

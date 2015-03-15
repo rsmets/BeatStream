@@ -1,5 +1,6 @@
 package com.example.raysmets.beatstream;
 
+import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -7,14 +8,30 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.app.Activity;
 import android.view.View;
+import android.widget.Toast;
 
 
 public class MainActivity extends ActionBarActivity {
+
+    private BluetoothAdapter myBluetoothAdapter;
+    private static final int REQUEST_ENABLE_BT = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
+        myBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+        if(myBluetoothAdapter == null) {
+            Toast.makeText(getApplicationContext(), "Your device does not support Bluetooth",
+                    Toast.LENGTH_LONG).show();
+        }
+
+        //enable bluetooth
+        BluetoothOn();
+
 
         Intent intent = getIntent();
 
@@ -22,14 +39,12 @@ public class MainActivity extends ActionBarActivity {
 
     //Button calls
     public void HostStream(View view){
-        Intent intent = new Intent(this, SetupBTActivity.class);
-        intent.putExtra("isHost", true);
+        Intent intent = new Intent(this, HostPlaylist.class);
         startActivity(intent);
     }
 
     public void JoinStream(View view){
         Intent intent = new Intent(this, SetupBTActivity.class);
-        intent.putExtra("isHost", false);
         startActivity(intent);
     }
 
@@ -71,5 +86,28 @@ public class MainActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+
+    public void BluetoothOn(){
+        if (!myBluetoothAdapter.isEnabled()) {
+            Intent turnOnIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(turnOnIntent, REQUEST_ENABLE_BT);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // TODO Auto-generated method stub
+        if(requestCode == REQUEST_ENABLE_BT){
+            if(myBluetoothAdapter.isEnabled()) {
+                Toast.makeText(getApplicationContext(), "Bluetooth turned on",
+                        Toast.LENGTH_LONG).show();
+
+            } else {
+                Toast.makeText(getApplicationContext(), "Bluetooth turned off",
+                        Toast.LENGTH_LONG).show();
+            }
+        }
     }
 }

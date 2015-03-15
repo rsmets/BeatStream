@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.widget.Toast;
 
 /**
  * Created by raysmets on 2/26/15.
@@ -19,7 +20,10 @@ public class HostPlaylist extends ActionBarActivity {
 
         //set the layout of the Activity
         setContentView(R.layout.setup_wifi);
+
+
         myBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
         makeDiscoverable();
 
 
@@ -39,4 +43,6 @@ public class HostPlaylist extends ActionBarActivity {
         }
 
     }
+
+
 }
