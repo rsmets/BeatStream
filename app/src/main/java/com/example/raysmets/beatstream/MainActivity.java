@@ -133,7 +133,7 @@ public class MainActivity extends ActionBarActivity {
             if(myBluetoothAdapter.isEnabled()) {
                 Toast.makeText(getApplicationContext(), "Bluetooth turned on",
                         Toast.LENGTH_LONG).show();
-                connectDevice(data, true);
+                connectDevice(data, false);
 
             } else {
                 //try again
