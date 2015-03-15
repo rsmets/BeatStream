@@ -35,7 +35,6 @@ public class JoinService {
 
     // Member fields
     private final BluetoothAdapter mAdapter;
-    private final Handler mHandler;
     private AcceptThread mSecureAcceptThread;
     private AcceptThread mInsecureAcceptThread;
     private ConnectThread mConnectThread;
@@ -52,12 +51,10 @@ public class JoinService {
      * Constructor. Prepares a new BluetoothChat session.
      *
      * @param context The UI Activity Context
-     * @param handler A Handler to send messages back to the UI Activity
      */
-    public JoinService(Context context, Handler handler) {
+    public JoinService(Context context) {
         mAdapter = BluetoothAdapter.getDefaultAdapter();
         mState = STATE_NONE;
-        mHandler = handler;
     }
 
     /**
@@ -431,13 +428,18 @@ public class JoinService {
             Log.i(TAG, "BEGIN mConnectedThread");
             byte[] buffer = new byte[1024];
             int bytes;
+            boolean first = true;
+            MusicPlayer musicplayer;
 
             // Keep listening to the InputStream while connected
             while (true) {
                 try {
                     // Read from the InputStream
                     bytes = mmInStream.read(buffer);
-
+                    if(first && buffer != null) {
+                        musicplayer = new MusicPlayer();
+                        musicplayer.playbytes(buffer);
+                    }
                     // Send the obtained bytes to the UI Activity
                     //NEED TO WRITE!! TODO
                 } catch (IOException e) {

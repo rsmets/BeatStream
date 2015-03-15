@@ -26,7 +26,7 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        joinService = new JoinService(this, handler);
+        joinService = new JoinService(this);
         myBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
         if(myBluetoothAdapter == null) {
@@ -103,19 +103,6 @@ public class MainActivity extends ActionBarActivity {
 
         return super.onOptionsItemSelected(item);
     }
-    /**
-     * The Handler that gets information back from the JoinService
-     */
-    public final Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-
-
-
-            }
-        }
-    };
 
     public void BluetoothOn(){
         if (!myBluetoothAdapter.isEnabled()) {

@@ -28,16 +28,6 @@ public class HostPlaylist extends ActionBarActivity {
     private ArrayAdapter<String> SongArrayAdapter;
     private ListView songList;
 
-    /**
-     * The Handler that gets information back from the JoinService
-     */
-    public final Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-            }
-        }
-    };
 
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +40,7 @@ public class HostPlaylist extends ActionBarActivity {
         myBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
         makeDiscoverable();
-        JoinService joinService = new JoinService(this, handler);
+        JoinService joinService = new JoinService(this);
         joinService.start();
 
         //generate playlist
