@@ -3,6 +3,8 @@ package com.example.raysmets.beatstream;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
 import android.os.Handler;
@@ -170,6 +172,10 @@ public class HostPlaylist extends ActionBarActivity {
             songDuration = songDuration + String.valueOf(songDurationS);
         }
 
+        //album artwork
+        byte[] albumbytes = metaData.getEmbeddedPicture();
+
+
         //Music Player Intent
         Intent intent = new Intent(this, MusicPlayer.class);
         intent.putExtra("fileName", songName);
@@ -177,6 +183,7 @@ public class HostPlaylist extends ActionBarActivity {
         intent.putExtra("songArtist", songArtist);
         intent.putExtra("songDurationMS", songDurationMS);
         intent.putExtra("songDuration", songDuration);
+        intent.putExtra("albumCover", albumbytes);
         startActivity(intent);
 
 

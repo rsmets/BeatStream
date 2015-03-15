@@ -1,6 +1,8 @@
 package com.example.raysmets.beatstream;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v7.app.ActionBarActivity;
 import java.util.concurrent.TimeUnit;
 
@@ -9,6 +11,7 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -19,6 +22,7 @@ public class MusicPlayer extends ActionBarActivity {
 
     private MediaPlayer mediaPlayer;
     public TextView songName, duration;
+    public ImageView AlbumCoverImage;
     private double timeElapsed = 0, finalTime = 0;
     private int forwardTime = 2000, backwardTime = 2000;
     private Handler durationHandler = new Handler();
@@ -29,6 +33,7 @@ public class MusicPlayer extends ActionBarActivity {
     private String songArtist;
     private int songDurationMS;
     private String songDuration;
+    private Bitmap albumCover;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +48,16 @@ public class MusicPlayer extends ActionBarActivity {
         songArtist = intent.getStringExtra("songArtist");
         songDurationMS = intent.getIntExtra("songDurationMS", 1);
         songDuration = intent.getStringExtra("songDuration");
+        byte[] albumbytes;
+        albumbytes = intent.getByteArrayExtra("albumCover");
+        try{
+            albumCover = BitmapFactory.decodeByteArray(albumbytes, 0, albumbytes.length);
+        }
+        catch(NullPointerException e)
+        {
+            //no album cover
+        }
+
         songID = getResources().getIdentifier(FileName,
                 "raw", getPackageName());
 
@@ -59,6 +74,10 @@ public class MusicPlayer extends ActionBarActivity {
         finalTime = mediaPlayer.getDuration();
         duration = (TextView) findViewById(R.id.songDuration);
         seekbar = (SeekBar) findViewById(R.id.seekBar);
+        AlbumCoverImage = (ImageView) findViewById(R.id.mp3Image);
+        if (albumCover!=null){
+            AlbumCoverImage.setImageBitmap (albumCover);
+        }
         songName.setText(songTitle);
 
         seekbar.setMax((int) finalTime);
