@@ -8,6 +8,8 @@ import android.os.Message;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
+
 
 /**
  * Created by raysmets on 2/26/15.
@@ -34,6 +36,8 @@ public class HostPlaylist extends ActionBarActivity {
 
         //set the layout of the Activity
         setContentView(R.layout.setup_wifi);
+
+
         myBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
         makeDiscoverable();
@@ -42,7 +46,7 @@ public class HostPlaylist extends ActionBarActivity {
 
     }
 
-    public void makeDiscoverable(){
+    public void makeDiscoverable() {
         /**
          * Makes this device discoverable.
          */
@@ -55,27 +59,5 @@ public class HostPlaylist extends ActionBarActivity {
             startActivity(discoverableIntent);
         }
 
-    }
-
-    /**
-     * Start device discover with the BluetoothAdapter
-     */
-    private void doDiscovery() {
-        Log.d(TAG, "doDiscovery()");
-
-        // Indicate scanning in the title
-        setProgressBarIndeterminateVisibility(true);
-        setTitle(R.string.scanning);
-
-        // Turn on sub-title for new devices
-        //findViewById(R.id.title_new_devices).setVisibility(View.VISIBLE);
-
-        // If we're already discovering, stop it
-        if (myBluetoothAdapter.isDiscovering()) {
-            myBluetoothAdapter.cancelDiscovery();
-        }
-
-        // Request discover from BluetoothAdapter
-        myBluetoothAdapter.startDiscovery();
     }
 }

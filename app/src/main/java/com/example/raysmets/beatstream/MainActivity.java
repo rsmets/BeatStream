@@ -16,15 +16,27 @@ import android.widget.Toast;
 
 
 public class MainActivity extends ActionBarActivity {
-    private BluetoothAdapter myBluetoothAdapter;
     private JoinService joinService;
+
+    private BluetoothAdapter myBluetoothAdapter;
+    private static final int REQUEST_ENABLE_BT = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        myBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
         joinService = new JoinService(this, handler);
+        myBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+        if(myBluetoothAdapter == null) {
+            Toast.makeText(getApplicationContext(), "Your device does not support Bluetooth",
+                    Toast.LENGTH_LONG).show();
+        }
+
+        //enable bluetooth
+        BluetoothOn();
+
         Intent intent = getIntent();
 
     }
@@ -33,6 +45,7 @@ public class MainActivity extends ActionBarActivity {
     public void HostStream(View view){
         Intent intent = new Intent(this, HostPlaylist.class);
         intent.putExtra("isHost", true);
+
         startActivity(intent);
     }
 
@@ -40,11 +53,6 @@ public class MainActivity extends ActionBarActivity {
         Intent intent = new Intent(this, DeviceListActivity.class);
         intent.putExtra("isHost", false);
         startActivityForResult(intent, 1);
-    }
-
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        connectDevice(data, true);
-
     }
 
     private void connectDevice(Intent data, boolean secure) {
@@ -95,7 +103,6 @@ public class MainActivity extends ActionBarActivity {
 
         return super.onOptionsItemSelected(item);
     }
-
     /**
      * The Handler that gets information back from the JoinService
      */
@@ -110,4 +117,28 @@ public class MainActivity extends ActionBarActivity {
         }
     };
 
+    public void BluetoothOn(){
+        if (!myBluetoothAdapter.isEnabled()) {
+            Toast.makeText(getApplicationContext(), "Bluetooth is required for this app",
+                    Toast.LENGTH_LONG).show();
+            Intent turnOnIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(turnOnIntent, REQUEST_ENABLE_BT);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // TODO Auto-generated method stub
+        if(requestCode == REQUEST_ENABLE_BT){
+            if(myBluetoothAdapter.isEnabled()) {
+                Toast.makeText(getApplicationContext(), "Bluetooth turned on",
+                        Toast.LENGTH_LONG).show();
+                connectDevice(data, true);
+
+            } else {
+                //try again
+                BluetoothOn();
+            }
+        }
+    }
 }
