@@ -1,38 +1,61 @@
 package com.example.raysmets.beatstream;
 
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.app.Activity;
 import android.view.View;
+import android.widget.Toast;
 
 
 public class MainActivity extends ActionBarActivity {
+    private BluetoothAdapter myBluetoothAdapter;
+    private JoinService joinService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        myBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        joinService = new JoinService(this, handler);
         Intent intent = getIntent();
 
     }
 
     //Button calls
     public void HostStream(View view){
-        Intent intent = new Intent(this, SetupBTActivity.class);
+        Intent intent = new Intent(this, HostPlaylist.class);
         intent.putExtra("isHost", true);
         startActivity(intent);
     }
 
     public void JoinStream(View view){
-        Intent intent = new Intent(this, SetupBTActivity.class);
+        Intent intent = new Intent(this, DeviceListActivity.class);
         intent.putExtra("isHost", false);
-        startActivity(intent);
+        startActivityForResult(intent, 1);
     }
 
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        connectDevice(data, true);
+
+    }
+
+    private void connectDevice(Intent data, boolean secure) {
+        // Get the device MAC address
+        String address = data.getExtras()
+                .getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
+        // Get the BluetoothDevice object
+        BluetoothDevice device = myBluetoothAdapter.getRemoteDevice(address);
+        // Attempt to connect to the device
+        joinService.connect(device, secure);
+    }
 
     //for testing
     public void setupWifi(View view){
@@ -72,4 +95,19 @@ public class MainActivity extends ActionBarActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    /**
+     * The Handler that gets information back from the JoinService
+     */
+    public final Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+
+
+
+            }
+        }
+    };
+
 }

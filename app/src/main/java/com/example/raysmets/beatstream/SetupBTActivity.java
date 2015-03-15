@@ -163,6 +163,7 @@ public class SetupBTActivity extends ActionBarActivity{
                     BTArrayAdapter.add(device.getName() + "\n" + device.getAddress());
                     BTArrayAdapter.notifyDataSetChanged();
                 }
+                // When discovery is finished, change the Activity title
             }
         }
     };
