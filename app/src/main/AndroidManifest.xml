@@ -36,6 +36,20 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.raysmets.beatstream.MainActivity" />
         </activity>
+        <activity
+            android:name=".HostPlaylist"
+            android:parentActivityName=".MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.raysmets.beatstream.MainActivity" />
+        </activity>
+        <activity
+            android:name=".JoinSetup"
+            android:parentActivityName=".MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.raysmets.beatstream.MainActivity" />
+        </activity>
     </application>
 
 </manifest>

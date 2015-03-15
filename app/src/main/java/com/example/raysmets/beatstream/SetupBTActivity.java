@@ -28,7 +28,6 @@ public class SetupBTActivity extends ActionBarActivity{
 
     private static final int REQUEST_ENABLE_BT = 1;
     private Button onBtn;
-    private Button offBtn;
     private Button listBtn;
     private Button findBtn;
     private TextView text;
@@ -37,16 +36,20 @@ public class SetupBTActivity extends ActionBarActivity{
     private ListView myListView;
     private ArrayAdapter<String> BTArrayAdapter;
 
+    private boolean isHost;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.setup_bt);
 
         // take an instance of BluetoothAdapter - Bluetooth radio
+        Intent intentI = getIntent();
+        isHost = intentI.getBooleanExtra("isHost", false);
+
         myBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if(myBluetoothAdapter == null) {
             onBtn.setEnabled(false);
-            offBtn.setEnabled(false);
             listBtn.setEnabled(false);
             findBtn.setEnabled(false);
             text.setText("Status: not supported");
@@ -62,16 +65,6 @@ public class SetupBTActivity extends ActionBarActivity{
                 public void onClick(View v) {
                     // TODO Auto-generated method stub
                     on(v);
-                }
-            });
-
-            offBtn = (Button)findViewById(R.id.turnOff);
-            offBtn.setOnClickListener(new OnClickListener() {
-
-                @Override
-                public void onClick(View v) {
-                    // TODO Auto-generated method stub
-                    off(v);
                 }
             });
 
@@ -100,6 +93,25 @@ public class SetupBTActivity extends ActionBarActivity{
             // create the arrayAdapter that contains the BTDevices, and set it to the ListView
             BTArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
             myListView.setAdapter(BTArrayAdapter);
+
+
+
+            //Check if Bluetooth is enabled
+            if (myBluetoothAdapter.isEnabled()) {
+                if (isHost) {
+                    Intent intent = new Intent(this, HostPlaylist.class);
+                    startActivity(intent);
+                }
+                else
+                {
+                    onBtn.setEnabled(false);
+                    onBtn.setVisibility(View.INVISIBLE);
+                }
+            }
+            else {
+                onBtn.setEnabled(true);
+                onBtn.setVisibility(View.VISIBLE);
+            }
         }
     }
 
@@ -152,9 +164,16 @@ public class SetupBTActivity extends ActionBarActivity{
         // TODO Auto-generated method stub
         if(requestCode == REQUEST_ENABLE_BT){
             if(myBluetoothAdapter.isEnabled()) {
-                text.setText("Status: Enabled");
+                text.setText("Status: Bluetooth Enabled");
+
+                //start host activity
+                if (isHost) {
+                    Intent intent = new Intent(this, HostPlaylist.class);
+                    startActivity(intent);
+                }
+
             } else {
-                text.setText("Status: Disabled");
+                text.setText("Status: Bluetooth Disabled");
             }
         }
     }
@@ -173,19 +192,24 @@ public class SetupBTActivity extends ActionBarActivity{
 
     }
 
-    public void off(View view){
-        myBluetoothAdapter.disable();
-        text.setText("Status: Disconnected");
-
-        Toast.makeText(getApplicationContext(),"Bluetooth turned off",
-                Toast.LENGTH_LONG).show();
-    }
+//    public void off(View view){
+//        myBluetoothAdapter.disable();
+//        text.setText("Status: Disconnected");
+//
+//        Toast.makeText(getApplicationContext(),"Bluetooth turned off",
+//                Toast.LENGTH_LONG).show();
+//    }
 
     @Override
     protected void onDestroy() {
         // TODO Auto-generated method stub
         super.onDestroy();
-        unregisterReceiver(bReceiver);
+        try {
+            unregisterReceiver(bReceiver);
+        }
+        catch(IllegalArgumentException e) {
+            //Receiver was not registered
+        }
     }
 
     @Override

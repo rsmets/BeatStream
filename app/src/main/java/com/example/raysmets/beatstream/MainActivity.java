@@ -23,11 +23,13 @@ public class MainActivity extends ActionBarActivity {
     //Button calls
     public void HostStream(View view){
         Intent intent = new Intent(this, SetupBTActivity.class);
+        intent.putExtra("isHost", true);
         startActivity(intent);
     }
 
     public void JoinStream(View view){
-        Intent intent = new Intent(this, SetupWifiActivity.class);
+        Intent intent = new Intent(this, SetupBTActivity.class);
+        intent.putExtra("isHost", false);
         startActivity(intent);
     }
 
