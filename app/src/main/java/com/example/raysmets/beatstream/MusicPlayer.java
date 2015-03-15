@@ -1,5 +1,6 @@
 package com.example.raysmets.beatstream;
 
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import java.util.concurrent.TimeUnit;
 
@@ -22,6 +23,12 @@ public class MusicPlayer extends ActionBarActivity {
     private int forwardTime = 2000, backwardTime = 2000;
     private Handler durationHandler = new Handler();
     private SeekBar seekbar;
+    private String FileName;
+    private int songID;
+    private String songTitle;
+    private String songArtist;
+    private int songDurationMS;
+    private String songDuration;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,17 +37,29 @@ public class MusicPlayer extends ActionBarActivity {
         //set the layout of the Activity
         setContentView(R.layout.music_player);
 
+        Intent intent = getIntent();
+        FileName = intent.getStringExtra("fileName");
+        songTitle = intent.getStringExtra("songTitle");
+        songArtist = intent.getStringExtra("songArtist");
+        songDurationMS = intent.getIntExtra("songDurationMS", 1);
+        songDuration = intent.getStringExtra("songDuration");
+        songID = getResources().getIdentifier(FileName,
+                "raw", getPackageName());
+
         //initialize views
         initializeViews();
+
+
+
     }
 
     public void initializeViews(){
         songName = (TextView) findViewById(R.id.songName);
-        mediaPlayer = MediaPlayer.create(this, R.raw.sample_song);
+        mediaPlayer = MediaPlayer.create(this, songID);
         finalTime = mediaPlayer.getDuration();
         duration = (TextView) findViewById(R.id.songDuration);
         seekbar = (SeekBar) findViewById(R.id.seekBar);
-        songName.setText("Sample_Song.mp3");
+        songName.setText(songTitle);
 
         seekbar.setMax((int) finalTime);
         seekbar.setClickable(false);
