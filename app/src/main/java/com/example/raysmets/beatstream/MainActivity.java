@@ -22,7 +22,7 @@ public class MainActivity extends ActionBarActivity {
 
     //Button calls
     public void HostStream(View view){
-        Intent intent = new Intent(this, SetupWifiActivity.class);
+        Intent intent = new Intent(this, SetupBTActivity.class);
         startActivity(intent);
     }
 
