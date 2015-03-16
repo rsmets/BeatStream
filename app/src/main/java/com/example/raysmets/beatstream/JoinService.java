@@ -5,6 +5,8 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
+import android.media.AudioFormat;
+import android.media.AudioTrack;
 import android.os.Looper;
 import android.util.Log;
 
@@ -436,7 +438,7 @@ public class JoinService{
         public void run() {
             Log.i(TAG, "BEGIN mConnectedThread");
             Looper.prepare();
-            byte[] buffer = new byte[1024];
+            byte[] buffer = new byte[AudioTrack.getMinBufferSize(44100, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT)];
             boolean first = true;
 
 

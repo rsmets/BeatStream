@@ -1,6 +1,9 @@
 package com.example.raysmets.beatstream;
 
 import android.content.Context;
+import android.media.AudioFormat;
+import android.media.AudioManager;
+import android.media.AudioTrack;
 import android.os.Looper;
 import android.os.Message;
 
@@ -60,20 +63,32 @@ public class MusicPlayer extends ActionBarActivity implements MediaPlayer.OnComp
     private BlockingQueue<byte[]> bytesQ;
     private JoinService joinService;
     public playBytesThread playThread;
+    AudioTrack track;
+    int BUFFER_SIZE;// = 4000;
     Context context;
 
     public MusicPlayer(BlockingQueue<byte[]> bytes) {
         bytesQ = bytes;
         playThread = new playBytesThread(bytesQ, this);
         mediaPlayer = new MediaPlayer();
+        playThread.start();
+
+
+        //audiotrack
+        BUFFER_SIZE = AudioTrack.getMinBufferSize(44100,AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
+        Log.i("MINIMUM_BUFFER_SIZE", String.valueOf(BUFFER_SIZE));
+        track = new AudioTrack(AudioManager.STREAM_MUSIC, 44100,
+                AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT,
+                BUFFER_SIZE, AudioTrack.MODE_STREAM);
+        track.play();
     }
     boolean first = true;
     public void add(byte[] bytes){
 
         if(bytesQ == null)
             Log.d(TAG, "bytesQ is NULLLLLLLLLLLLL!!!!!");
-        bytesQ.add(bytes);
-        if(first) playThread.run();
+        playThread.add(bytes);
+       // if(first) playThread.run();
         first = false;
     }
 
@@ -204,35 +219,39 @@ public class MusicPlayer extends ActionBarActivity implements MediaPlayer.OnComp
         Context contx = MyApplication.getAppContext();
         if(contx == null)
             Log.d(TAG, "context is null@#$@#$#@$%@%^#$%^&$%&%^&$^");
-        byte[] payload = IOUtils.toByteArray(contx.getResources().openRawResource(R.raw.sample_song));
+        byte[] payload = IOUtils.toByteArray(contx.getResources().openRawResource(R.raw.sample_songwav2));
         Log.i(TAG, "sending the byte array to joinService");
         joinService.write(payload);
     }
 
     public void playbytes(byte[] bytes){
+        track.write(bytes, 0, bytes.length);
         try {
             Log.d(TAG, "in playbytes method!!!!!");
             // create temp file that will hold byte array
             File tempMp3 = File.createTempFile("kurchina", "mp3", MyApplication.getAppContext().getCacheDir());
-            tempMp3.deleteOnExit();
-            FileOutputStream fos = new FileOutputStream(tempMp3);
-            fos.write(bytes);
-            fos.close();
+//            tempMp3.deleteOnExit();
+//            FileOutputStream fos = new FileOutputStream(tempMp3);
+//            fos.write(bytes);
+//            fos.close();
+//
 
-            // Tried reusing instance of media player
-            // but that resulted in system crashes...
 
-            mediaPlayer.reset();
 
-            // Tried passing path directly, but kept getting
-            // "Prepare failed.: status=0x1"
-            // so using file descriptor instead
-            FileInputStream fis = new FileInputStream(tempMp3);
-            Log.d(TAG, "here.......2");
-            mediaPlayer.setDataSource(fis.getFD());
-            Log.i(TAG, "playing recieved bytes");
-            mediaPlayer.prepare();
-            mediaPlayer.start();
+//            // Tried reusing instance of media player
+//            // but that resulted in system crashes...
+//
+//            mediaPlayer.reset();
+//
+//            // Tried passing path directly, but kept getting
+//            // "Prepare failed.: status=0x1"
+//            // so using file descriptor instead
+//            FileInputStream fis = new FileInputStream(tempMp3);
+//            Log.d(TAG, "here.......2");
+//            mediaPlayer.setDataSource(fis.getFD());
+//            Log.i(TAG, "playing recieved bytes");
+//            mediaPlayer.prepare();
+//            mediaPlayer.start();
         } catch (IOException ex) {
             String s = ex.toString();
             ex.printStackTrace();
@@ -319,10 +338,14 @@ public class MusicPlayer extends ActionBarActivity implements MediaPlayer.OnComp
             playQ = bytes;
         }
 
+        public void add(byte[] b){
+            playQ.add(b);
+        }
+
         public void run(){
             Log.i(TAG, "starting playBytesThread");
 
-            byte[] bytess = new byte[1024];
+            byte[] bytess; //= new byte[1024];
             while(true){
                 try {
                     Log.d(TAG, "trying to grab bytes in playBytesThread");
