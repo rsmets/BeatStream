@@ -1,12 +1,16 @@
 package com.example.raysmets.beatstream;
 
 import android.content.Intent;
+import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.content.SharedPreferences;
+import android.media.MediaMetadataRetriever;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
+
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import android.media.MediaPlayer;
@@ -20,7 +24,7 @@ import android.widget.TextView;
 /**
  * Created by raysmets on 2/24/15.
  */
-public class MusicPlayer extends ActionBarActivity {
+public class MusicPlayer extends ActionBarActivity implements MediaPlayer.OnCompletionListener {
 
     static MediaPlayer mediaPlayer = null;
     public static TextView songName, duration;
@@ -32,13 +36,16 @@ public class MusicPlayer extends ActionBarActivity {
     SharedPreferences prefs;
     static boolean Playing;
     private String FileName;
-    private int songID;
-    private String songTitle;
+    private static int songID;
+    private static String songTitle;
     private String songArtist;
     private int songDurationMS;
     private String songDuration;
-    private Bitmap albumCover;
+    private static Bitmap albumCover;
     byte[] albumbytes;
+    int [] songs;
+    int current_index = songID;
+    MediaMetadataRetriever metaData = new MediaMetadataRetriever();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +61,7 @@ public class MusicPlayer extends ActionBarActivity {
         songDurationMS = intent.getIntExtra("songDurationMS", 1);
         songDuration = intent.getStringExtra("songDuration");
         albumbytes = intent.getByteArrayExtra("albumCover");
+        songs = new int[] {R.raw.all_of_me,R.raw.apologize,R.raw.sample_song,R.raw.strongerkw};
         try{
             albumCover = BitmapFactory.decodeByteArray(albumbytes, 0, albumbytes.length);
         }
@@ -72,9 +80,14 @@ public class MusicPlayer extends ActionBarActivity {
         //initialize views
         if(mediaPlayer == null) {
             initializeViews();
+            mediaPlayer.setOnCompletionListener(this);
         }
     }
 
+    @Override
+    public void onCompletion(MediaPlayer mediaPlayer){
+        play();
+    }
     @Override
     protected void onPause(){
         super.onPause();
@@ -105,7 +118,7 @@ public class MusicPlayer extends ActionBarActivity {
         songName.setText(songTitle);
         durationHandler.postDelayed(updateSeekBarTime, 100);
         if (mediaPlayer == null) {
-               mediaPlayer = MediaPlayer.create(this, R.raw.sample_song);
+               mediaPlayer = MediaPlayer.create(this, songs[current_index]);
         }
         if(Playing) {
             mediaPlayer.start();
@@ -223,4 +236,28 @@ public class MusicPlayer extends ActionBarActivity {
         }
     }
 
+    private void play(){
+        current_index = (current_index+1)%4;
+        AssetFileDescriptor afd = this.getResources().openRawResourceFd(songs[current_index]);
+
+        metaData.setDataSource(afd.getFileDescriptor(),afd.getStartOffset(),afd.getDeclaredLength());
+        songTitle = metaData.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+        songName = (TextView) findViewById(R.id.songName);
+        songName.setText(songTitle);
+        //AlbumCoverImage = (ImageView) findViewById(R.id.mp3Image);
+
+        try {
+            mediaPlayer.reset();
+            mediaPlayer.setDataSource(afd.getFileDescriptor(),afd.getStartOffset(),afd.getDeclaredLength());
+            mediaPlayer.prepare();
+            mediaPlayer.start();
+            finalTime = mediaPlayer.getDuration();
+            duration = (TextView) findViewById(R.id.songDuration);
+            durationHandler.postDelayed(updateSeekBarTime, 100);
+            afd.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
 }
