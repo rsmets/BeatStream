@@ -32,7 +32,8 @@
         </activity>
         <activity
             android:name=".MusicPlayer"
-            android:parentActivityName=".MainActivity" >
+            android:parentActivityName=".MainActivity"
+            android:configChanges="orientation">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.raysmets.beatstream.MainActivity" />

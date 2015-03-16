@@ -34,7 +34,7 @@
         android:id="@+id/joinstreamButton"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="50sp"
+        android:layout_marginTop="30sp"
         android:layout_alignParentLeft="false"
         android:layout_alignParentRight="false" />
 
