@@ -220,6 +220,7 @@ public class MusicPlayer extends ActionBarActivity implements MediaPlayer.OnComp
         if(contx == null)
             Log.d(TAG, "context is null@#$@#$#@$%@%^#$%^&$%&%^&$^");
         byte[] payload = IOUtils.toByteArray(contx.getResources().openRawResource(R.raw.sample_songwav2));
+        Log.i(TAG, "Number of bits in song: " + String.valueOf(payload.length));
         Log.i(TAG, "sending the byte array to joinService");
         joinService.write(payload);
     }
