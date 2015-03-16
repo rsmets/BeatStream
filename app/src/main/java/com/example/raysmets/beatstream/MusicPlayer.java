@@ -1,6 +1,9 @@
 package com.example.raysmets.beatstream;
 
 import android.content.Context;
+import android.os.Looper;
+import android.os.Message;
+
 import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
@@ -16,6 +19,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -27,6 +31,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import org.apache.commons.io.IOUtils;
 
 import org.apache.commons.io.IOUtils;
 
@@ -35,7 +40,6 @@ import org.apache.commons.io.IOUtils;
  */
 public class MusicPlayer extends ActionBarActivity implements MediaPlayer.OnCompletionListener {
 
-    private static final String TAG = "MediaPlayer";
     static MediaPlayer mediaPlayer = null;
     public static TextView songName, duration;
     public ImageView AlbumCoverImage;
@@ -45,6 +49,7 @@ public class MusicPlayer extends ActionBarActivity implements MediaPlayer.OnComp
     private static SeekBar seekbar;
     SharedPreferences prefs;
     static boolean Playing;
+    private static final String TAG = "Musicplayer";
     private String FileName;
     private static int songID;
     private static String songTitle;
@@ -75,15 +80,20 @@ public class MusicPlayer extends ActionBarActivity implements MediaPlayer.OnComp
     }
 
     private static Bitmap albumCover;
+
     byte[] albumbytes;
     int [] songs;
     int current_index = songID;
     MediaMetadataRetriever metaData = new MediaMetadataRetriever();
 
+
+    /*public MusicPlayer(){
+
+    }*/
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        context = getApplicationContext();
         //set the layout of the Activity
         setContentView(R.layout.music_player);
 
@@ -94,6 +104,8 @@ public class MusicPlayer extends ActionBarActivity implements MediaPlayer.OnComp
         songDurationMS = intent.getIntExtra("songDurationMS", 1);
         songDuration = intent.getStringExtra("songDuration");
         albumbytes = intent.getByteArrayExtra("albumCover");
+        joinService = MyApplication.getJoinService();
+
         songs = new int[] {R.raw.all_of_me,R.raw.apologize,R.raw.sample_song,R.raw.strongerkw};
         joinService = MyApplication.getJoinService();
         try{
@@ -197,7 +209,6 @@ public class MusicPlayer extends ActionBarActivity implements MediaPlayer.OnComp
 
     public void playbytes(byte[] bytes){
         try {
-            Log.d(TAG, "in playbytes method!!!!!");
             // create temp file that will hold byte array
             File tempMp3 = File.createTempFile("kurchina", "mp3", getCacheDir());
             tempMp3.deleteOnExit();
@@ -214,14 +225,13 @@ public class MusicPlayer extends ActionBarActivity implements MediaPlayer.OnComp
             // so using file descriptor instead
             FileInputStream fis = new FileInputStream(tempMp3);
             mediaPlayer.setDataSource(fis.getFD());
-            Log.i(TAG, "playing recieved bytes**********");
+            Log.i(TAG, "playing recieved bytes");
             mediaPlayer.prepare();
             mediaPlayer.start();
         } catch (IOException ex) {
             String s = ex.toString();
             ex.printStackTrace();
         }
-        Playing = false;
     }
 
     // play mp3 song
@@ -231,6 +241,12 @@ public class MusicPlayer extends ActionBarActivity implements MediaPlayer.OnComp
             playMusic();
         }
         durationHandler.postDelayed(updateSeekBarTime, 100);
+        try {
+            Log.i(TAG, "beginning the process of sending audio");
+            sendMusic(R.raw.sample_song);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     //handler to change seekBarTime
@@ -301,11 +317,11 @@ public class MusicPlayer extends ActionBarActivity implements MediaPlayer.OnComp
         public void run(){
             Log.i(TAG, "starting playBytesThread");
             Looper.prepare();
-            byte[] bytes = new byte[1024];
+            byte[] bytess = new byte[1024];
             while(true){
                 try {
-                    bytes = playQ.take();
-                    musicPlayer.playbytes(bytes);
+                    bytess = playQ.take();
+                    musicPlayer.playbytes(bytess);
                 } catch (InterruptedException e) {
                     Log.d(TAG, "can't grab audio bytes");
                     e.printStackTrace();
@@ -359,4 +375,6 @@ public class MusicPlayer extends ActionBarActivity implements MediaPlayer.OnComp
         }
 
     }
+
+
 }
