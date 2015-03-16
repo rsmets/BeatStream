@@ -60,14 +60,14 @@ public class MainActivity extends ActionBarActivity {
         startActivityForResult(intent, 1);
     }
 
-    private void connectDevice(Intent data, boolean secure) {
+    private void connectDevice(Intent data) {
         // Get the device MAC address
         String address = data.getExtras()
                 .getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
         // Get the BluetoothDevice object
         BluetoothDevice device = myBluetoothAdapter.getRemoteDevice(address);
         // Attempt to connect to the device
-        joinService.connect(device, secure);
+        joinService.connect(device);
     }
 
     //for testing
@@ -162,7 +162,7 @@ public class MainActivity extends ActionBarActivity {
             if(myBluetoothAdapter.isEnabled()) {
                 Toast.makeText(getApplicationContext(), "Bluetooth turned on",
                         Toast.LENGTH_LONG).show();
-                connectDevice(data, false);
+                connectDevice(data);
 
             } else {
                 //try again
