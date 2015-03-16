@@ -57,7 +57,7 @@ public class MusicPlayer extends ActionBarActivity {
     public MusicPlayer(BlockingQueue<byte[]> bytes) {
         bytesQ = bytes;
         playThread = new playBytesThread(bytesQ, this);
-
+        playThread.start();
 
     }
 
@@ -140,6 +140,7 @@ public class MusicPlayer extends ActionBarActivity {
 
     public void playbytes(byte[] bytes){
         try {
+            Log.d(TAG, "in playbytes method!!!!!");
             // create temp file that will hold byte array
             File tempMp3 = File.createTempFile("kurchina", "mp3", getCacheDir());
             tempMp3.deleteOnExit();
@@ -156,7 +157,7 @@ public class MusicPlayer extends ActionBarActivity {
             // so using file descriptor instead
             FileInputStream fis = new FileInputStream(tempMp3);
             mediaPlayer.setDataSource(fis.getFD());
-            Log.i(TAG, "playing recieved bytes");
+            Log.i(TAG, "playing recieved bytes**********");
             mediaPlayer.prepare();
             mediaPlayer.start();
         } catch (IOException ex) {
@@ -227,7 +228,9 @@ public class MusicPlayer extends ActionBarActivity {
             byte[] bytes = new byte[1024];
             while(true){
                 try {
+                    Log.d(TAG, "trying to grab bytes in playBytesThread");
                     bytes = playQ.take();
+                    if(bytes != null) Log.d(TAG,"successfully grabbed bytes in playBytesThread");
                     musicPlayer.playbytes(bytes);
                 } catch (InterruptedException e) {
                     Log.d(TAG, "can't grab audio bytes");

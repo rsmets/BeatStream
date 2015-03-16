@@ -14,6 +14,7 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Created by raysmets on 3/14/15.
@@ -409,7 +410,7 @@ public class JoinService{
         private final BluetoothSocket mmSocket;
         private final InputStream mmInStream;
         private final OutputStream mmOutStream;
-        BlockingQueue<byte[]> bytes;
+        BlockingQueue<byte[]> bytes = new LinkedBlockingQueue<byte[]>();
         MusicPlayer musicPlayer;
 
         public ConnectedThread(BluetoothSocket socket, String socketType) {
@@ -444,11 +445,11 @@ public class JoinService{
                 Log.i(TAG, "XXXXXXX");
                 try {
                     // Read from the InputStream
-                    Log.i(TAG, "trying to read bytes recieved!!!!!!");
+                    //Log.i(TAG, "trying to read bytes recieved!!!!!!");
                     mmInStream.read(buffer);
-                    Log.i(TAG, "trying to read bytes recieved!!!!!!");
+                    //Log.i(TAG, "trying to read bytes recieved!!!!!!");
                     if(buffer != null) {
-                        Log.i(TAG, "trying to add bytes to musicPlayer thread!!!!!!");
+                        Log.i(TAG, "added bytes to musicPlayer thread!!!!!!");
                         musicPlayer.add(buffer);
                     }
                     // Send the obtained bytes to the UI Activity
