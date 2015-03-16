@@ -3,6 +3,8 @@ package com.example.raysmets.beatstream;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
+import android.content.res.AssetFileDescriptor;
+import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -80,7 +82,44 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void goToMediaPlayer(View view){
+        //Song Metadata for player
+        String songName = "all_of_me";
+        int resID = getResources().getIdentifier(songName,
+                "raw", getPackageName());
+
+        final AssetFileDescriptor afd=getResources().openRawResourceFd(resID);
+
+        MediaMetadataRetriever metaData = new MediaMetadataRetriever();
+        metaData.setDataSource(afd.getFileDescriptor(),afd.getStartOffset(),afd.getLength());
+
+
+        String songTitle = metaData.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+        String songArtist = metaData.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+        int songDurationMS = Integer.valueOf(metaData.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+        int songDurationS = songDurationMS / 1000;
+        int songDurationM = songDurationS/60;
+        songDurationS = songDurationS%60;
+
+        String songDuration = String.valueOf(songDurationM) + ":";
+        if (songDurationS<10) {
+            songDuration = songDuration + "0" + String.valueOf(songDurationS);
+        }
+        else {
+            songDuration = songDuration + String.valueOf(songDurationS);
+        }
+
+        //album artwork
+        byte[] albumbytes = metaData.getEmbeddedPicture();
+
+
+        //Music Player Intent
         Intent intent = new Intent(this, MusicPlayer.class);
+        intent.putExtra("fileName", songName);
+        intent.putExtra("songTitle", songTitle);
+        intent.putExtra("songArtist", songArtist);
+        intent.putExtra("songDurationMS", songDurationMS);
+        intent.putExtra("songDuration", songDuration);
+        intent.putExtra("albumCover", albumbytes);
         startActivity(intent);
     }
 
