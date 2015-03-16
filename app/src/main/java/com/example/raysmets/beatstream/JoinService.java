@@ -1,25 +1,24 @@
 package com.example.raysmets.beatstream;
 
-import android.app.job.JobInfo;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
+import android.os.Looper;
 import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.util.UUID;
+import java.util.concurrent.BlockingQueue;
 
 /**
  * Created by raysmets on 3/14/15.
  */
-public class JoinService {
+public class JoinService{
     // Debugging
     private static final String TAG = "JoinService";
 
@@ -211,13 +210,16 @@ public class JoinService {
      */
     public void write(byte[] out) {
         // Create temporary object
+        Log.d(TAG, "IN JOINSERVICE WRITE METHOD");
         ConnectedThread r;
         // Synchronize a copy of the ConnectedThread
         synchronized (this) {
             if (mState != STATE_CONNECTED) return;
+            Log.i(TAG,"setting r to proper connectedThread");
             r = mConnectedThread;
         }
         // Perform the write unsynchronized
+        Log.i(TAG, "writing audio bytes to connectedThread");
         r.write(out);
     }
 
@@ -271,6 +273,7 @@ public class JoinService {
         public void run() {
             Log.d(TAG, "Socket Type: " + mSocketType +
                     "BEGIN mAcceptThread" + this);
+            Looper.prepare();
             setName("AcceptThread" + mSocketType);
 
             BluetoothSocket socket = null;
@@ -357,6 +360,7 @@ public class JoinService {
 
         public void run() {
             Log.i(TAG, "BEGIN mConnectThread SocketType:" + mSocketType);
+            Looper.prepare();
             setName("ConnectThread" + mSocketType);
 
             // Always cancel discovery because it will slow down a connection
@@ -405,12 +409,16 @@ public class JoinService {
         private final BluetoothSocket mmSocket;
         private final InputStream mmInStream;
         private final OutputStream mmOutStream;
+        BlockingQueue<byte[]> bytes;
+        MusicPlayer musicPlayer;
 
         public ConnectedThread(BluetoothSocket socket, String socketType) {
             Log.d(TAG, "create ConnectedThread: " + socketType);
             mmSocket = socket;
             InputStream tmpIn = null;
             OutputStream tmpOut = null;
+            musicPlayer = new MusicPlayer(bytes);
+
 
             // Get the BluetoothSocket input and output streams
             try {
@@ -426,24 +434,27 @@ public class JoinService {
 
         public void run() {
             Log.i(TAG, "BEGIN mConnectedThread");
+            Looper.prepare();
             byte[] buffer = new byte[1024];
-            int bytes;
             boolean first = true;
-            MusicPlayer musicplayer;
+
 
             // Keep listening to the InputStream while connected
             while (true) {
+                Log.i(TAG, "XXXXXXX");
                 try {
                     // Read from the InputStream
-                    bytes = mmInStream.read(buffer);
-                    if(first && buffer != null) {
-                        musicplayer = new MusicPlayer();
-                        musicplayer.playbytes(buffer);
+                    Log.i(TAG, "trying to read bytes recieved!!!!!!");
+                    mmInStream.read(buffer);
+                    Log.i(TAG, "trying to read bytes recieved!!!!!!");
+                    if(buffer != null) {
+                        Log.i(TAG, "trying to add bytes to musicPlayer thread!!!!!!");
+                        musicPlayer.add(buffer);
                     }
                     // Send the obtained bytes to the UI Activity
                     //NEED TO WRITE!! TODO
                 } catch (IOException e) {
-                    Log.e(TAG, "disconnected", e);
+                    Log.d(TAG, "disconnected", e);
                     connectionLost();
                     // Start the service over to restart listening mode
                     JoinService.this.start();
@@ -459,6 +470,7 @@ public class JoinService {
          */
         public void write(byte[] buffer) {
             try {
+                Log.i(TAG, "writing the audio bytes to connectedThread outputStream");
                 mmOutStream.write(buffer);
 
                 // Share the sent message back to the UI Activity

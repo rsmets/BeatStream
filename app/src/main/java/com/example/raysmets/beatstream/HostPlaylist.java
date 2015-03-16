@@ -31,6 +31,11 @@ public class HostPlaylist extends ActionBarActivity {
     private ArrayAdapter<String> SongArrayAdapter;
     private ListView songList;
     private ArrayList<String> songFiles = new ArrayList<String>();
+    JoinService joinService;
+
+    /*public HostPlaylist(JoinService js){
+        joinService = js;
+    }*/
 
 
 
@@ -40,11 +45,13 @@ public class HostPlaylist extends ActionBarActivity {
         //set the layout of the Activity
         setContentView(R.layout.host_playlist);
 
+        joinService = MyApplication.getJoinService();
 
-        myBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+        myBluetoothAdapter = MyApplication.getBTadapter();
 
         makeDiscoverable();
-        JoinService joinService = new JoinService(this);
+
         joinService.start();
 
         //generate playlist

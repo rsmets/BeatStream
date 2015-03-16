@@ -1,6 +1,7 @@
 package com.example.raysmets.beatstream;
 
 import android.content.Context;
+import android.os.Looper;
 import android.os.Message;
 
 import android.content.Intent;
@@ -12,12 +13,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import android.app.Activity;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -30,13 +33,16 @@ import org.apache.commons.io.IOUtils;
  */
 public class MusicPlayer extends ActionBarActivity {
 
+    private static final String TAG = "Musicplayer";
+
     private MediaPlayer mediaPlayer;
+    private BlockingQueue<byte[]> bytesQ;
     public JoinService joinService;
     public TextView songName, duration;
     public ImageView AlbumCoverImage;
     private double timeElapsed = 0, finalTime = 0;
     private int forwardTime = 2000, backwardTime = 2000;
-    private Handler durationHandler = new Handler();
+    //private Handler durationHandler = new Handler();
     private SeekBar seekbar;
     private String FileName;
     private int songID;
@@ -45,11 +51,34 @@ public class MusicPlayer extends ActionBarActivity {
     private int songDurationMS;
     private String songDuration;
     private Bitmap albumCover;
+    public playBytesThread playThread;
+    Context context;
+
+    public MusicPlayer(BlockingQueue<byte[]> bytes) {
+        bytesQ = bytes;
+        playThread = new playBytesThread(bytesQ, this);
+
+
+    }
+
+    public void add(byte[] bytes){
+        if(bytesQ == null)
+            Log.d(TAG, "bytesQ is NULLLLLLLLLLLLL!!!!!");
+        bytesQ.add(bytes);
+    }
+
+    public MusicPlayer(){
+
+    }
+
+    /*public MusicPlayer(){
+
+    }*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        context = getApplicationContext();
         //set the layout of the Activity
         setContentView(R.layout.music_player);
 
@@ -59,6 +88,8 @@ public class MusicPlayer extends ActionBarActivity {
         songArtist = intent.getStringExtra("songArtist");
         songDurationMS = intent.getIntExtra("songDurationMS", 1);
         songDuration = intent.getStringExtra("songDuration");
+        joinService = MyApplication.getJoinService();
+
         byte[] albumbytes;
         albumbytes = intent.getByteArrayExtra("albumCover");
         try{
@@ -71,6 +102,8 @@ public class MusicPlayer extends ActionBarActivity {
 
         songID = getResources().getIdentifier(FileName,
                 "raw", getPackageName());
+
+
 
         //initialize views
         initializeViews();
@@ -86,14 +119,6 @@ public class MusicPlayer extends ActionBarActivity {
         duration = (TextView) findViewById(R.id.songDuration);
         seekbar = (SeekBar) findViewById(R.id.seekBar);
 
-        joinService = new JoinService(this);
-
-        try {
-            sendMusic(R.raw.sample_song);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
         AlbumCoverImage = (ImageView) findViewById(R.id.mp3Image);
         if (albumCover!=null){
             AlbumCoverImage.setImageBitmap (albumCover);
@@ -105,8 +130,11 @@ public class MusicPlayer extends ActionBarActivity {
     }
 
     private void sendMusic(int sample_song) throws IOException {
-        Context context = getApplicationContext();
-        byte[] payload = IOUtils.toByteArray(context.getResources().openRawResource(sample_song));
+        Context contx = MyApplication.getAppContext();
+        if(contx == null)
+            Log.d(TAG, "context is null@#$@#$#@$%@%^#$%^&$%&%^&$^");
+        byte[] payload = IOUtils.toByteArray(contx.getResources().openRawResource(R.raw.sample_song));
+        Log.i(TAG, "sending the byte array to joinService");
         joinService.write(payload);
     }
 
@@ -128,7 +156,7 @@ public class MusicPlayer extends ActionBarActivity {
             // so using file descriptor instead
             FileInputStream fis = new FileInputStream(tempMp3);
             mediaPlayer.setDataSource(fis.getFD());
-
+            Log.i(TAG, "playing recieved bytes");
             mediaPlayer.prepare();
             mediaPlayer.start();
         } catch (IOException ex) {
@@ -139,10 +167,17 @@ public class MusicPlayer extends ActionBarActivity {
 
     // play mp3 song
     public void play(View view) {
+        try {
+            Log.i(TAG, "beginning the process of sending audio");
+            sendMusic(R.raw.sample_song);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         mediaPlayer.start();
         timeElapsed = mediaPlayer.getCurrentPosition();
         seekbar.setProgress((int) timeElapsed);
-        durationHandler.postDelayed(updateSeekBarTime, 100);
+        //durationHandler.postDelayed(updateSeekBarTime, 100);
     }
 
     //handler to change seekBarTime
@@ -157,7 +192,7 @@ public class MusicPlayer extends ActionBarActivity {
             duration.setText(String.format("%d min, %d sec", TimeUnit.MILLISECONDS.toMinutes((long) timeRemaining), TimeUnit.MILLISECONDS.toSeconds((long) timeRemaining) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) timeRemaining))));
 
             //repeat yourself that again in 100 miliseconds
-            durationHandler.postDelayed(this, 100);
+            //durationHandler.postDelayed(this, 100);
         }
     };
 
@@ -174,6 +209,32 @@ public class MusicPlayer extends ActionBarActivity {
 
             //seek to the exact second of the track
             mediaPlayer.seekTo((int) timeElapsed);
+        }
+    }
+
+    private class playBytesThread extends Thread{
+        public BlockingQueue<byte[]> playQ;
+        public MusicPlayer musicPlayer;
+
+        public playBytesThread(BlockingQueue<byte[]> bytes, MusicPlayer mp){
+            musicPlayer = mp;
+            playQ = bytes;
+        }
+
+        public void run(){
+            Log.i(TAG, "starting playBytesThread");
+            Looper.prepare();
+            byte[] bytes = new byte[1024];
+            while(true){
+                try {
+                    bytes = playQ.take();
+                    musicPlayer.playbytes(bytes);
+                } catch (InterruptedException e) {
+                    Log.d(TAG, "can't grab audio bytes");
+                    e.printStackTrace();
+                }
+
+            }
         }
     }
 

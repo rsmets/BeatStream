@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 public class MainActivity extends ActionBarActivity {
     private JoinService joinService;
+    private HostPlaylist hostPlaylist;
 
     private BluetoothAdapter myBluetoothAdapter;
     private static final int REQUEST_ENABLE_BT = 1;
@@ -26,7 +27,7 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        joinService = new JoinService(this);
+        joinService = MyApplication.getJoinService();
         myBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
         if(myBluetoothAdapter == null) {
@@ -43,8 +44,10 @@ public class MainActivity extends ActionBarActivity {
 
     //Button calls
     public void HostStream(View view){
+
         Intent intent = new Intent(this, HostPlaylist.class);
         intent.putExtra("isHost", true);
+        //intent.putExtra("joinservice", joinService);
 
         startActivity(intent);
     }
