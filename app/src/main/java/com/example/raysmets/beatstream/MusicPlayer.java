@@ -40,7 +40,7 @@ import org.apache.commons.io.IOUtils;
  */
 public class MusicPlayer extends ActionBarActivity implements MediaPlayer.OnCompletionListener {
 
-    static MediaPlayer mediaPlayer = null;
+    static MediaPlayer mediaPlayer;
     public static TextView songName, duration;
     public ImageView AlbumCoverImage;
     private static double timeElapsed = 0, finalTime = 0;
@@ -65,14 +65,16 @@ public class MusicPlayer extends ActionBarActivity implements MediaPlayer.OnComp
     public MusicPlayer(BlockingQueue<byte[]> bytes) {
         bytesQ = bytes;
         playThread = new playBytesThread(bytesQ, this);
-        playThread.start();
-
+        mediaPlayer = new MediaPlayer();
     }
-
+    boolean first = true;
     public void add(byte[] bytes){
+
         if(bytesQ == null)
             Log.d(TAG, "bytesQ is NULLLLLLLLLLLLL!!!!!");
         bytesQ.add(bytes);
+        if(first) playThread.run();
+        first = false;
     }
 
     public MusicPlayer(){
@@ -209,8 +211,9 @@ public class MusicPlayer extends ActionBarActivity implements MediaPlayer.OnComp
 
     public void playbytes(byte[] bytes){
         try {
+            Log.d(TAG, "in playbytes method!!!!!");
             // create temp file that will hold byte array
-            File tempMp3 = File.createTempFile("kurchina", "mp3", getCacheDir());
+            File tempMp3 = File.createTempFile("kurchina", "mp3", MyApplication.getAppContext().getCacheDir());
             tempMp3.deleteOnExit();
             FileOutputStream fos = new FileOutputStream(tempMp3);
             fos.write(bytes);
@@ -218,12 +221,14 @@ public class MusicPlayer extends ActionBarActivity implements MediaPlayer.OnComp
 
             // Tried reusing instance of media player
             // but that resulted in system crashes...
+
             mediaPlayer.reset();
 
             // Tried passing path directly, but kept getting
             // "Prepare failed.: status=0x1"
             // so using file descriptor instead
             FileInputStream fis = new FileInputStream(tempMp3);
+            Log.d(TAG, "here.......2");
             mediaPlayer.setDataSource(fis.getFD());
             Log.i(TAG, "playing recieved bytes");
             mediaPlayer.prepare();
@@ -316,11 +321,13 @@ public class MusicPlayer extends ActionBarActivity implements MediaPlayer.OnComp
 
         public void run(){
             Log.i(TAG, "starting playBytesThread");
-            Looper.prepare();
+
             byte[] bytess = new byte[1024];
             while(true){
                 try {
+                    Log.d(TAG, "trying to grab bytes in playBytesThread");
                     bytess = playQ.take();
+                    if(bytess != null) Log.d(TAG,"successfully grabbed bytes in playBytesThread");
                     musicPlayer.playbytes(bytess);
                 } catch (InterruptedException e) {
                     Log.d(TAG, "can't grab audio bytes");

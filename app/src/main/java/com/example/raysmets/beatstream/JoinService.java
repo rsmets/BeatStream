@@ -442,7 +442,7 @@ public class JoinService{
 
             // Keep listening to the InputStream while connected
             while (true) {
-                Log.i(TAG, "XXXXXXX");
+
                 try {
                     // Read from the InputStream
                     //Log.i(TAG, "trying to read bytes recieved!!!!!!");
