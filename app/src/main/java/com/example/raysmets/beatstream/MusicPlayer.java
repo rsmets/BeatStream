@@ -125,7 +125,7 @@ public class MusicPlayer extends ActionBarActivity implements MediaPlayer.OnComp
         joinService = MyApplication.getJoinService();
         mediaStream = new MediaStream(joinService);
 
-        songs = new int[] {R.raw.all_of_me,R.raw.apologize,R.raw.sample_song,R.raw.strongerkw};
+        songs = new int[] {R.raw.all_of_me,R.raw.apologize,R.raw.sample_song,R.raw.stronger};
         joinService = MyApplication.getJoinService();
         try{
             albumCover = BitmapFactory.decodeByteArray(albumbytes, 0, albumbytes.length);
