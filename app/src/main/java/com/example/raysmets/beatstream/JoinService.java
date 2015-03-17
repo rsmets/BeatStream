@@ -223,6 +223,7 @@ public class JoinService{
         // Perform the write unsynchronized
         Log.i(TAG, "writing audio bytes to connectedThread");
         r.write(out);
+        Log.i(TAG, "done writing audio bytes!!!");
     }
 
     /**

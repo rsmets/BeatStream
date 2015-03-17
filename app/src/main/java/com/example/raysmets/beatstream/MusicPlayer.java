@@ -66,6 +66,7 @@ public class MusicPlayer extends ActionBarActivity implements MediaPlayer.OnComp
     AudioTrack track;
     int BUFFER_SIZE;// = 4000;
     Context context;
+    MediaStream mediaStream;
 
     public MusicPlayer(BlockingQueue<byte[]> bytes) {
         bytesQ = bytes;
@@ -122,6 +123,7 @@ public class MusicPlayer extends ActionBarActivity implements MediaPlayer.OnComp
         songDuration = intent.getStringExtra("songDuration");
         albumbytes = intent.getByteArrayExtra("albumCover");
         joinService = MyApplication.getJoinService();
+        mediaStream = new MediaStream(joinService);
 
         songs = new int[] {R.raw.all_of_me,R.raw.apologize,R.raw.sample_song,R.raw.strongerkw};
         joinService = MyApplication.getJoinService();
@@ -268,7 +270,9 @@ public class MusicPlayer extends ActionBarActivity implements MediaPlayer.OnComp
         durationHandler.postDelayed(updateSeekBarTime, 100);
         try {
             Log.i(TAG, "beginning the process of sending audio");
-            sendMusic(songID);
+            //sendMusic(songID);
+            mediaStream.sendMusic(songID);
+            Log.i(TAG, "DONE SENDING AUDiO");
         } catch (IOException e) {
             e.printStackTrace();
         }
