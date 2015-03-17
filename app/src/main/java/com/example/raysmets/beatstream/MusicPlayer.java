@@ -151,7 +151,7 @@ public class MusicPlayer extends ActionBarActivity implements MediaPlayer.OnComp
 
     @Override
     public void onCompletion(MediaPlayer mediaPlayer){
-        play();
+        playc();
     }
     @Override
     protected void onPause(){
@@ -267,15 +267,8 @@ public class MusicPlayer extends ActionBarActivity implements MediaPlayer.OnComp
         if(!mediaPlayer.isPlaying()) {
             playMusic();
         }
-        durationHandler.postDelayed(updateSeekBarTime, 100);
-        try {
-            Log.i(TAG, "beginning the process of sending audio");
-            //sendMusic(songID);
-            mediaStream.sendMusic(songID);
-            Log.i(TAG, "DONE SENDING AUDiO");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
+
     }
 
     //handler to change seekBarTime
@@ -377,7 +370,18 @@ public class MusicPlayer extends ActionBarActivity implements MediaPlayer.OnComp
             }
 
             mediaPlayer.setLooping(false);
+
+            durationHandler.postDelayed(updateSeekBarTime, 100);
             mediaPlayer.start();
+            try {
+                Log.i(TAG, "beginning the process of sending audio");
+                //sendMusic(songID);
+                mediaStream.sendMusic(songID);
+                Log.i(TAG, "DONE SENDING AUDiO");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
 
             int millisecond = mediaPlayer.getDuration();
             prefsEdit.putBoolean("mediaplaying",true);
@@ -386,7 +390,7 @@ public class MusicPlayer extends ActionBarActivity implements MediaPlayer.OnComp
         }
     }
 
-    private void play(){
+    private void playc(){
         current_index = (current_index+1)%4;
         AssetFileDescriptor afd = this.getResources().openRawResourceFd(songs[current_index]);
 
