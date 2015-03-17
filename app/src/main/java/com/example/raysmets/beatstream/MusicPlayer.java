@@ -75,7 +75,7 @@ public class MusicPlayer extends ActionBarActivity implements MediaPlayer.OnComp
 
 
         //audiotrack
-        BUFFER_SIZE = AudioTrack.getMinBufferSize(44100,AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
+        BUFFER_SIZE = 10000; //AudioTrack.getMinBufferSize(44100,AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
         Log.i("MINIMUM_BUFFER_SIZE", String.valueOf(BUFFER_SIZE));
         track = new AudioTrack(AudioManager.STREAM_MUSIC, 44100,
                 AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT,

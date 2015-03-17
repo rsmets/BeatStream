@@ -437,7 +437,6 @@ public class JoinService{
         public void run() {
             Log.i(TAG, "BEGIN mConnectedThread");
             Looper.prepare();
-            byte[] buffer = new byte[AudioTrack.getMinBufferSize(44100, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT)];
             boolean first = true;
 
 
@@ -446,13 +445,17 @@ public class JoinService{
 
                 try {
                     // Read from the InputStream
+                    byte[] buffer = new byte[10000];//AudioTrack.getMinBufferSize(44100, AudioFormat.CHANNEL_CONFIGURATION_STEREO, AudioFormat.ENCODING_PCM_16BIT)];
+                    int n;
+
                     //Log.i(TAG, "trying to read bytes recieved!!!!!!");
-                    mmInStream.read(buffer);
+                    n = mmInStream.read(buffer);
                     //Log.i(TAG, "trying to read bytes recieved!!!!!!");
-                    if(buffer != null) {
-                        Log.i(TAG, "added bytes to musicPlayer thread!!!!!!");
-                        musicPlayer.add(buffer);
+                    if(n == -1) {
+                        continue;
                     }
+                    Log.i(TAG, "added bytes to musicPlayer thread!!!!!!");
+                    musicPlayer.add(buffer);
                     // Send the obtained bytes to the UI Activity
                     //NEED TO WRITE!! TODO
                 } catch (IOException e) {
