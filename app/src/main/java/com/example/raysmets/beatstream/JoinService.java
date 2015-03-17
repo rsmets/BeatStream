@@ -445,12 +445,13 @@ public class JoinService{
 
                 try {
                     // Read from the InputStream
-                    byte[] buffer = new byte[10000];//AudioTrack.getMinBufferSize(44100, AudioFormat.CHANNEL_CONFIGURATION_STEREO, AudioFormat.ENCODING_PCM_16BIT)];
+                    byte[] buffer = new byte[AudioTrack.getMinBufferSize(44100, AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT)];
                     int n;
 
                     //Log.i(TAG, "trying to read bytes recieved!!!!!!");
                     n = mmInStream.read(buffer);
                     //Log.i(TAG, "trying to read bytes recieved!!!!!!");
+                    Log.i(TAG, "NUMBER OF BYTES READ: " + String.valueOf(n));
                     if(n == -1) {
                         continue;
                     }

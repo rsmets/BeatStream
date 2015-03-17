@@ -71,25 +71,25 @@ public class MusicPlayer extends ActionBarActivity implements MediaPlayer.OnComp
         bytesQ = bytes;
         playThread = new playBytesThread(bytesQ, this);
         mediaPlayer = new MediaPlayer();
-        playThread.start();
+        //playThread.start();
 
 
         //audiotrack
-        BUFFER_SIZE = 10000; //AudioTrack.getMinBufferSize(44100,AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
+        BUFFER_SIZE = AudioTrack.getMinBufferSize(44100,AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT);
         Log.i("MINIMUM_BUFFER_SIZE", String.valueOf(BUFFER_SIZE));
         track = new AudioTrack(AudioManager.STREAM_MUSIC, 44100,
-                AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT,
+                AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT,
                 BUFFER_SIZE, AudioTrack.MODE_STREAM);
         track.play();
     }
     boolean first = true;
     public void add(byte[] bytes){
+        track.write(bytes, 0, bytes.length);
+        //if(bytesQ == null)
+         //   Log.d(TAG, "bytesQ is NULLLLLLLLLLLLL!!!!!");
+        //playThread.add(bytes);
 
-        if(bytesQ == null)
-            Log.d(TAG, "bytesQ is NULLLLLLLLLLLLL!!!!!");
-        playThread.add(bytes);
-       // if(first) playThread.run();
-        first = false;
+
     }
 
     public MusicPlayer(){
@@ -219,7 +219,7 @@ public class MusicPlayer extends ActionBarActivity implements MediaPlayer.OnComp
         Context contx = MyApplication.getAppContext();
         if(contx == null)
             Log.d(TAG, "context is null@#$@#$#@$%@%^#$%^&$%&%^&$^");
-        byte[] payload = IOUtils.toByteArray(contx.getResources().openRawResource(R.raw.sample_songwav2));
+        byte[] payload = IOUtils.toByteArray(contx.getResources().openRawResource(sample_song));
         Log.i(TAG, "Number of bits in song: " + String.valueOf(payload.length));
         Log.i(TAG, "sending the byte array to joinService");
         joinService.write(payload);
@@ -268,7 +268,7 @@ public class MusicPlayer extends ActionBarActivity implements MediaPlayer.OnComp
         durationHandler.postDelayed(updateSeekBarTime, 100);
         try {
             Log.i(TAG, "beginning the process of sending audio");
-            sendMusic(R.raw.sample_song);
+            sendMusic(songID);
         } catch (IOException e) {
             e.printStackTrace();
         }
