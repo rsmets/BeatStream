@@ -38,20 +38,6 @@
         android:layout_alignParentLeft="false"
         android:layout_alignParentRight="false" />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Music Player (Test)"
-        android:onClick="goToMediaPlayer"
-        android:id="@+id/testplayerbutton"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@+id/hoststreamButton"
-        android:layout_alignParentEnd="false"
-        android:layout_alignParentStart="false"
-        android:layout_alignParentRight="false"
-        android:layout_alignParentLeft="false"
-        android:layout_alignParentTop="false" />
-
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
